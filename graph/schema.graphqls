@@ -1,0 +1,57 @@
+scalar Time
+scalar Map
+scalar Any
+scalar Int64
+
+type User {
+  id: ID!
+  first_name: String!
+  last_name: String!
+  is_verified: Boolean!
+  email: String!
+}
+
+# Generic response type
+type Response {
+  message: String!
+}
+
+type AuthResponse {
+  message: String!
+  user: User!
+}
+
+type InviteCompanyUsersResponse {
+  message: String!
+  users: [User!]
+}
+
+input SessionQueryInput {
+  roles: [String!]
+  company_role_id: String
+}
+
+input LoginRequest {
+  email: String!
+}
+
+input SignUpRequest {
+  email: String!
+  first_name: String!
+  last_name: String!
+}
+
+input VerifyOtpRequest {
+  otp: String!
+}
+
+type Query {
+  session(params: SessionQueryInput): AuthResponse!
+}
+
+type Mutation {
+  signup(params: SignUpRequest!): Response!
+  login(params: LoginRequest!): Response!
+  verify_otp(params: VerifyOtpRequest!): AuthResponse!
+  logout: Response!
+}

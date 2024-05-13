@@ -41,6 +41,7 @@ func (s *service) Signup(ctx context.Context, params model.SignUpRequest) (*mode
 	}
 	// Create user
 	user := &models.User{
+		ID:        uuid.NewString(),
 		Email:     email,
 		FirstName: params.FirstName,
 		LastName:  params.LastName,
@@ -53,7 +54,9 @@ func (s *service) Signup(ctx context.Context, params model.SignUpRequest) (*mode
 	otp := fmt.Sprintf("%d", rand.Intn(999999))
 	mfaSessionExpiresIn := time.Now().Add(time.Minute * 2).Unix()
 	s.MemoryStoreProvider.SetMfaSession(user.ID, mfaSession, otp, mfaSessionExpiresIn)
-	gc.SetCookie(constants.MfaSessionCookieName, mfaSession, 60*2, "", "", true, true)
+	host := utils.GetHost(gc)
+	hostname, _ := utils.GetHostParts(host)
+	gc.SetCookie(constants.MfaSessionCookieName, fmt.Sprintf("%s:%s", user.ID, mfaSession), 60*2, "/", hostname, true, true)
 	// TODO send OTP to user
 	log.Debug().Msgf("OTP: %s", otp)
 	return &model.Response{

@@ -26,11 +26,6 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-type SessionQueryInput struct {
-	Roles         []string `json:"roles,omitempty"`
-	CompanyRoleID *string  `json:"company_role_id,omitempty"`
-}
-
 type SignUpRequest struct {
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`

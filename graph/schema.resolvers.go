@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/lakhansamani/cloud-container/graph/model"
 )
@@ -32,8 +31,8 @@ func (r *mutationResolver) Logout(ctx context.Context) (*model.Response, error) 
 }
 
 // Session is the resolver for the session field.
-func (r *queryResolver) Session(ctx context.Context, params *model.SessionQueryInput) (*model.AuthResponse, error) {
-	panic(fmt.Errorf("not implemented: Session - session"))
+func (r *queryResolver) Session(ctx context.Context) (*model.AuthResponse, error) {
+	return r.Service.Session(ctx)
 }
 
 // Mutation returns MutationResolver implementation.

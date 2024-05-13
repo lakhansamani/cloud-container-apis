@@ -26,11 +26,6 @@ type InviteCompanyUsersResponse {
   users: [User!]
 }
 
-input SessionQueryInput {
-  roles: [String!]
-  company_role_id: String
-}
-
 input LoginRequest {
   email: String!
 }
@@ -46,7 +41,7 @@ input VerifyOtpRequest {
 }
 
 type Query {
-  session(params: SessionQueryInput): AuthResponse!
+  session: AuthResponse!
 }
 
 type Mutation {

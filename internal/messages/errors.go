@@ -21,4 +21,8 @@ const (
 	ErrorGeneratingSession = "error generating session"
 	// ErrorVerifyingSession is the error message for session verification error
 	ErrorVerifyingSession = "error verifying session"
+	// InternalServerError is the error message for internal server error
+	InternalServerError = "internal server error"
+	// InvalidSessionError is the error message for invalid session
+	InvalidSessionError = "invalid session"
 )

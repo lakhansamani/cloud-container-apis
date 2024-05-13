@@ -6,13 +6,11 @@ import (
 	"encoding/base64"
 	"errors"
 	"strings"
-
-	"github.com/lakhansamani/cloud-container/internal/db/models"
 )
 
 const (
-	// EncryptionKey is the key used for encryption
-	EncryptionKey = "cc-encryption-key-2024-13-05"
+	// encryptionKey is the key used for encryption
+	encryptionKey = "fcd964fa-1e2f-4ddb-9db7-9c07c632"
 )
 
 var bytes = []byte{35, 46, 57, 24, 85, 35, 24, 74, 87, 35, 88, 98, 66, 32, 14, 0o5}
@@ -33,7 +31,7 @@ func DecryptB64(s string) (string, error) {
 
 // EncryptAES method is to encrypt or hide any classified text
 func EncryptAES(text string) (string, error) {
-	key := []byte(EncryptionKey)
+	key := []byte(encryptionKey)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
@@ -47,7 +45,7 @@ func EncryptAES(text string) (string, error) {
 
 // DecryptAES method is to extract back the encrypted text
 func DecryptAES(text string) (string, error) {
-	key := []byte(EncryptionKey)
+	key := []byte(encryptionKey)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
@@ -64,8 +62,8 @@ func DecryptAES(text string) (string, error) {
 
 // GenerateSession token using user id and email address from user object
 // Encrypt this token before sending to client
-func GenerateSession(user *models.User, nonce string) (string, error) {
-	token := user.ID + ":" + nonce
+func GenerateSession(userID string, nonce string) (string, error) {
+	token := userID + ":" + nonce
 	// Encrypt token using AES encryption
 	encryptedToken, err := EncryptAES(token)
 	if err != nil {
@@ -89,6 +87,6 @@ func DecryptSession(token string) (string, string, error) {
 	}
 	// Get user info from session
 	userID := splitSession[0]
-	nonce := splitSession[2]
+	nonce := splitSession[1]
 	return userID, nonce, nil
 }

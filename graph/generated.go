@@ -65,7 +65,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Session func(childComplexity int, params *model.SessionQueryInput) int
+		Session func(childComplexity int) int
 	}
 
 	Response struct {
@@ -88,7 +88,7 @@ type MutationResolver interface {
 	Logout(ctx context.Context) (*model.Response, error)
 }
 type QueryResolver interface {
-	Session(ctx context.Context, params *model.SessionQueryInput) (*model.AuthResponse, error)
+	Session(ctx context.Context) (*model.AuthResponse, error)
 }
 
 type executableSchema struct {
@@ -186,12 +186,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_session_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Session(childComplexity, args["params"].(*model.SessionQueryInput)), true
+		return e.complexity.Query.Session(childComplexity), true
 
 	case "Response.message":
 		if e.complexity.Response.Message == nil {
@@ -244,7 +239,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputLoginRequest,
-		ec.unmarshalInputSessionQueryInput,
 		ec.unmarshalInputSignUpRequest,
 		ec.unmarshalInputVerifyOtpRequest,
 	)
@@ -420,21 +414,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_session_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *model.SessionQueryInput
-	if tmp, ok := rawArgs["params"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("params"))
-		arg0, err = ec.unmarshalOSessionQueryInput2ᚖgithubᚗcomᚋlakhansamaniᚋcloudᚑcontainerᚋgraphᚋmodelᚐSessionQueryInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["params"] = arg0
 	return args, nil
 }
 
@@ -914,7 +893,7 @@ func (ec *executionContext) _Query_session(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Session(rctx, fc.Args["params"].(*model.SessionQueryInput))
+		return ec.resolvers.Query().Session(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -931,7 +910,7 @@ func (ec *executionContext) _Query_session(ctx context.Context, field graphql.Co
 	return ec.marshalNAuthResponse2ᚖgithubᚗcomᚋlakhansamaniᚋcloudᚑcontainerᚋgraphᚋmodelᚐAuthResponse(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_session(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_session(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -946,17 +925,6 @@ func (ec *executionContext) fieldContext_Query_session(ctx context.Context, fiel
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AuthResponse", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_session_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -3154,40 +3122,6 @@ func (ec *executionContext) unmarshalInputLoginRequest(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSessionQueryInput(ctx context.Context, obj interface{}) (model.SessionQueryInput, error) {
-	var it model.SessionQueryInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"roles", "company_role_id"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "roles":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roles"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Roles = data
-		case "company_role_id":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("company_role_id"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CompanyRoleID = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputSignUpRequest(ctx context.Context, obj interface{}) (model.SignUpRequest, error) {
 	var it model.SignUpRequest
 	asMap := map[string]interface{}{}
@@ -4290,52 +4224,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
-}
-
-func (ec *executionContext) unmarshalOSessionQueryInput2ᚖgithubᚗcomᚋlakhansamaniᚋcloudᚑcontainerᚋgraphᚋmodelᚐSessionQueryInput(ctx context.Context, v interface{}) (*model.SessionQueryInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputSessionQueryInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

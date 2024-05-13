@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"net/url"
 	"strings"
 	"time"
 
@@ -23,15 +24,22 @@ func (s *service) VerifyOTP(ctx context.Context, params model.VerifyOtpRequest) 
 		log.Debug().Err(err).Msg(messages.GinContextError)
 		return nil, errors.New(messages.GinContextError)
 	}
+	host := utils.GetHost(gc)
+	hostname, _ := utils.GetHostParts(host)
 	mfaSession, err := gc.Request.Cookie(constants.MfaSessionCookieName)
 	if err != nil {
 		log.Debug().Err(err).Msg("error getting mfa session cookie")
 		return nil, errors.New(messages.InvalidMfaSessionError)
 	}
 	// Split session
-	splitSession := strings.Split(mfaSession.Value, ":")
+	mfaSessionValue, err := url.PathUnescape(mfaSession.Value)
+	if err != nil {
+		log.Debug().Err(err).Msg("error unescaping mfa session value")
+		return nil, errors.New(messages.InvalidMfaSessionError)
+	}
+	splitSession := strings.Split(mfaSessionValue, ":")
 	if len(splitSession) != 2 {
-		log.Debug().Msg(messages.InvalidMfaSessionError)
+		log.Debug().Interface("mfa_session", mfaSession).Msg(messages.InvalidMfaSessionError)
 		return nil, errors.New(messages.InvalidMfaSessionError)
 	}
 	// Get user id from session
@@ -47,10 +55,16 @@ func (s *service) VerifyOTP(ctx context.Context, params model.VerifyOtpRequest) 
 		log.Debug().Msg(messages.InvalidOtpError)
 		return nil, errors.New(messages.InvalidOtpError)
 	}
+	// Delete mfa session from memory store
+	if err := s.MemoryStoreProvider.DeleteMfaSession(userID, mfaSessionToken); err != nil {
+		log.Debug().Err(err).Msg("error deleting mfa session from memory store")
+		return nil, errors.New(messages.InternalServerError)
+	}
+	gc.SetCookie(constants.MfaSessionCookieName, "", -1, "/", hostname, true, true)
 	// Get user from database
 	user, err := s.DatabaseClient.GetUserByID(userID)
 	if err != nil {
-		log.Debug().Err(err).Msg("error getting user from database")
+		log.Debug().Err(err).Str("user_id", user.ID).Msg("error getting user from database")
 		return nil, errors.New(messages.UserNotFoundError)
 	}
 	if user.VerifiedAt == nil {
@@ -64,15 +78,15 @@ func (s *service) VerifyOTP(ctx context.Context, params model.VerifyOtpRequest) 
 	}
 	// Set session in memory store
 	nonce := uuid.NewString()
-	session, err := utils.GenerateSession(user, nonce)
+	session, err := utils.GenerateSession(user.ID, nonce)
 	if err != nil {
 		log.Debug().Err(err).Msg("error generating session")
 		return nil, errors.New(messages.ErrorGeneratingSession)
 	}
 	s.MemoryStoreProvider.SetUserSession(user.ID, nonce, session)
-	gc.SetCookie(constants.SessionCookieName, session, -1, "/", "", true, true)
+	gc.SetCookie(constants.SessionCookieName, session, 60*60*24*120, "/", hostname, true, true)
 	return &model.AuthResponse{
 		User:    user.ToAPI(),
-		Message: messages.OTPSentMessage,
+		Message: messages.LoginSuccessMessage,
 	}, nil
 }

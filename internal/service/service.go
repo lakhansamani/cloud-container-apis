@@ -37,7 +37,7 @@ type Service interface {
 	VerifyOTP(ctx context.Context, params model.VerifyOtpRequest) (*model.AuthResponse, error)
 	// Session is the service for the session query
 	// permission required: none
-	Session(ctx context.Context, params *model.SessionQueryInput) (*model.AuthResponse, error)
+	Session(ctx context.Context) (*model.AuthResponse, error)
 	// Logout is the service for the logout mutation
 	// permission required: authenticated user
 	Logout(ctx context.Context) (*model.Response, error)

@@ -10,7 +10,7 @@ import (
 // GetUserByID returns a user by ID
 func (p *DBProvider) GetUserByID(id string) (*models.User, error) {
 	var user models.User
-	err := p.DB.First(&user, id).Error
+	err := p.DB.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return nil, err
 	}

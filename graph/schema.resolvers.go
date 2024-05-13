@@ -13,22 +13,22 @@ import (
 
 // Signup is the resolver for the signup field.
 func (r *mutationResolver) Signup(ctx context.Context, params model.SignUpRequest) (*model.Response, error) {
-	panic(fmt.Errorf("not implemented: Signup - signup"))
+	return r.Service.Signup(ctx, params)
 }
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, params model.LoginRequest) (*model.Response, error) {
-	panic(fmt.Errorf("not implemented: Login - login"))
+	return r.Service.Login(ctx, params)
 }
 
 // VerifyOtp is the resolver for the verify_otp field.
 func (r *mutationResolver) VerifyOtp(ctx context.Context, params model.VerifyOtpRequest) (*model.AuthResponse, error) {
-	panic(fmt.Errorf("not implemented: VerifyOtp - verify_otp"))
+	return r.Service.VerifyOTP(ctx, params)
 }
 
 // Logout is the resolver for the logout field.
 func (r *mutationResolver) Logout(ctx context.Context) (*model.Response, error) {
-	panic(fmt.Errorf("not implemented: Logout - logout"))
+	return r.Service.Logout(ctx)
 }
 
 // Session is the resolver for the session field.

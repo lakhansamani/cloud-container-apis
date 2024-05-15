@@ -3,12 +3,13 @@ package models
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/lakhansamani/cloud-container/graph/model"
 )
 
 // User is the struct for the user table
 type User struct {
-	ID string `json:"id" gorm:"primary_key"`
+	ID uuid.UUID `gorm:"type:uuid;"`
 	// CreatedAt is the time the deployment was created
 	CreatedAt time.Time `json:"created_at"`
 	// UpdatedAt is the time the deployment was updated
@@ -29,7 +30,7 @@ func (u *User) ToAPI() *model.User {
 		isVerified = true
 	}
 	return &model.User{
-		ID:         u.ID,
+		ID:         u.ID.String(),
 		Email:      u.Email,
 		FirstName:  u.FirstName,
 		LastName:   u.LastName,

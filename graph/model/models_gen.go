@@ -7,9 +7,37 @@ type AuthResponse struct {
 	User    *User  `json:"user"`
 }
 
+type CreateDeploymentRequest struct {
+	Name    string                 `json:"name"`
+	Image   string                 `json:"image"`
+	EnvVars map[string]interface{} `json:"env_vars,omitempty"`
+}
+
+type DeleteDeploymentRequest struct {
+	ID string `json:"id"`
+}
+
+type Deployment struct {
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Image       string                 `json:"image"`
+	Status      *string                `json:"status,omitempty"`
+	ContainerID *string                `json:"container_id,omitempty"`
+	EnvVars     map[string]interface{} `json:"env_vars,omitempty"`
+}
+
+type GetDeploymentRequest struct {
+	ID string `json:"id"`
+}
+
 type InviteCompanyUsersResponse struct {
 	Message string  `json:"message"`
 	Users   []*User `json:"users,omitempty"`
+}
+
+type ListDeploymentsRequest struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
 }
 
 type LoginRequest struct {

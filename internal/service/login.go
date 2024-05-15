@@ -34,7 +34,7 @@ func (s *service) Login(ctx context.Context, params model.LoginRequest) (*model.
 	mfaSession := uuid.NewString()
 	otp := fmt.Sprintf("%d", rand.Intn(999999))
 	mfaSessionExpiresIn := time.Now().Add(time.Minute * 2).Unix()
-	s.MemoryStoreProvider.SetMfaSession(user.ID, mfaSession, otp, mfaSessionExpiresIn)
+	s.MemoryStoreProvider.SetMfaSession(user.ID.String(), mfaSession, otp, mfaSessionExpiresIn)
 	host := utils.GetHost(gc)
 	hostname, _ := utils.GetHostParts(host)
 	gc.SetCookie(constants.MfaSessionCookieName, fmt.Sprintf("%s:%s", user.ID, mfaSession), 60*2, "/", hostname, true, true)

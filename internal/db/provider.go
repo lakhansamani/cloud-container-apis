@@ -19,7 +19,7 @@ func NewDBProvider() (*DBProvider, error) {
 		log.Fatal().Err(err).Msg("Error connecting to database")
 		return nil, err
 	}
-	err = db.AutoMigrate(&models.User{}, &models.Deployment{})
+	err = db.AutoMigrate(&models.User{}, &models.Deployment{}, &models.UserDeployments{})
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error migrating models")
 		return nil, err

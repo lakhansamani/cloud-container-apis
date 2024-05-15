@@ -26,6 +26,15 @@ type InviteCompanyUsersResponse {
   users: [User!]
 }
 
+type Deployment {
+  id: ID!
+  name: String!
+  image: String!
+  status: String
+  container_id: String
+  env_vars: Map
+}
+
 input LoginRequest {
   email: String!
 }
@@ -40,13 +49,36 @@ input VerifyOtpRequest {
   otp: String!
 }
 
+input CreateDeploymentRequest {
+  name: String!
+  image: String!
+  env_vars: Map
+}
+
+input DeleteDeploymentRequest {
+  id: ID!
+}
+
+input GetDeploymentRequest {
+  id: ID!
+}
+
+input ListDeploymentsRequest {
+  limit: Int!
+  offset: Int!
+}
+
 type Query {
   session: AuthResponse!
+  deployments(params: ListDeploymentsRequest): [Deployment!]!
+  deployment(params: GetDeploymentRequest): Deployment!
 }
 
 type Mutation {
   signup(params: SignUpRequest!): Response!
   login(params: LoginRequest!): Response!
   verify_otp(params: VerifyOtpRequest!): AuthResponse!
+  create_deployment(params: CreateDeploymentRequest): Response!
+  delete_deployment(params: DeleteDeploymentRequest): Response!
   logout: Response!
 }

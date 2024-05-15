@@ -28,13 +28,15 @@ func (p *DBProvider) GetUserByEmail(email string) (*models.User, error) {
 }
 
 // CreateUser creates a new user
-func (p *DBProvider) CreateUser(user *models.User) error {
-	if user.ID == "" {
-		user.ID = uuid.New().String()
-	}
+func (p *DBProvider) CreateUser(user *models.User) (*models.User, error) {
+	user.ID = uuid.New()
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
-	return p.DB.Create(&user).Error
+	err := p.DB.Create(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 // UpdateUser updates a user

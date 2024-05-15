@@ -4,6 +4,8 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // JSONB Interface for JSONB Field
@@ -23,7 +25,7 @@ func (j *JSONB) Scan(value interface{}) error {
 
 // Deployment is the struct for the deployment table
 type Deployment struct {
-	ID string `json:"id" gorm:"primary_key"`
+	ID uuid.UUID `gorm:"type:uuid;"`
 	// CreatedAt is the time the deployment was created
 	CreatedAt time.Time `json:"created_at"`
 	// UpdatedAt is the time the deployment was updated
@@ -32,8 +34,16 @@ type Deployment struct {
 	Name string `json:"name"`
 	// Image is the image of the deployment
 	Image string `json:"image"`
-	// Port is the port of the deployment
-	Port string `json:"port"`
-	// EnvironmentVariables are the environment variables of the deployment
-	EnvironmentVariables JSONB `json:"environment"`
+	// Status is the status of the deployment
+	Status string `json:"status"`
+	// ContainerID is the container id of the deployment
+	ContainerID string `json:"container_id"`
+	// EnvVars are the environment variables of the deployment
+	EnvVars JSONB `json:"env_vars"`
+	// CreatedBy is the user who created the deployment
+	CreatedBy uuid.UUID `json:"created_by"`
+	// CreatedBy is the user who created the deployment
+	CreatedByUser User `gorm:"foreignKey:CreatedBy;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	// DeletedAt is the time the deployment was deleted
+	DeletedAt *time.Time `json:"deleted_at"`
 }

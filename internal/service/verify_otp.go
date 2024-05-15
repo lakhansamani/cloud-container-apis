@@ -64,7 +64,7 @@ func (s *service) VerifyOTP(ctx context.Context, params model.VerifyOtpRequest) 
 	// Get user from database
 	user, err := s.DatabaseClient.GetUserByID(userID)
 	if err != nil {
-		log.Debug().Err(err).Str("user_id", user.ID).Msg("error getting user from database")
+		log.Debug().Err(err).Str("user_id", user.ID.String()).Msg("error getting user from database")
 		return nil, errors.New(messages.UserNotFoundError)
 	}
 	if user.VerifiedAt == nil {
@@ -78,12 +78,12 @@ func (s *service) VerifyOTP(ctx context.Context, params model.VerifyOtpRequest) 
 	}
 	// Set session in memory store
 	nonce := uuid.NewString()
-	session, err := utils.GenerateSession(user.ID, nonce)
+	session, err := utils.GenerateSession(user.ID.String(), nonce)
 	if err != nil {
 		log.Debug().Err(err).Msg("error generating session")
 		return nil, errors.New(messages.ErrorGeneratingSession)
 	}
-	s.MemoryStoreProvider.SetUserSession(user.ID, nonce, session)
+	s.MemoryStoreProvider.SetUserSession(user.ID.String(), nonce, session)
 	gc.SetCookie(constants.SessionCookieName, session, 60*60*24*120, "/", hostname, true, true)
 	return &model.AuthResponse{
 		User:    user.ToAPI(),

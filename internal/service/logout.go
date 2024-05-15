@@ -10,6 +10,7 @@ import (
 	"github.com/lakhansamani/cloud-container/graph/model"
 	constants "github.com/lakhansamani/cloud-container/internal/contants"
 	"github.com/lakhansamani/cloud-container/internal/messages"
+	"github.com/lakhansamani/cloud-container/internal/session"
 	"github.com/lakhansamani/cloud-container/internal/utils"
 )
 
@@ -35,7 +36,7 @@ func (s *service) Logout(ctx context.Context) (*model.Response, error) {
 		return nil, errors.New(messages.InvalidMfaSessionError)
 	}
 	// Decrypt session token
-	userID, nonce, err := utils.DecryptSession(sessionValue)
+	userID, nonce, err := session.DecryptSession(sessionValue)
 	if err != nil {
 		log.Debug().Err(err).Msg("error decrypting session token")
 		return nil, err

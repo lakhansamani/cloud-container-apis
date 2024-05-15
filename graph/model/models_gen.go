@@ -36,8 +36,8 @@ type InviteCompanyUsersResponse struct {
 }
 
 type ListDeploymentsRequest struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
+	Limit  *int `json:"limit,omitempty"`
+	Offset *int `json:"offset,omitempty"`
 }
 
 type LoginRequest struct {

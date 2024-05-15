@@ -6,10 +6,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lakhansamani/cloud-container/graph/model"
 )
 
 // JSONB Interface for JSONB Field
-type JSONB []map[string]interface{}
+type JSONB map[string]interface{}
 
 func (j JSONB) Value() (driver.Value, error) {
 	valueString, err := json.Marshal(j)
@@ -17,7 +18,8 @@ func (j JSONB) Value() (driver.Value, error) {
 }
 
 func (j *JSONB) Scan(value interface{}) error {
-	if err := json.Unmarshal(value.([]byte), &j); err != nil {
+	// assert that value to map[string]interface{}
+	if err := json.Unmarshal([]byte(value.(string)), &j); err != nil {
 		return err
 	}
 	return nil
@@ -46,4 +48,15 @@ type Deployment struct {
 	CreatedByUser User `gorm:"foreignKey:CreatedBy;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	// DeletedAt is the time the deployment was deleted
 	DeletedAt *time.Time `json:"deleted_at"`
+}
+
+func (d *Deployment) ToAPI() *model.Deployment {
+	return &model.Deployment{
+		ID:          d.ID.String(),
+		Name:        d.Name,
+		Image:       d.Image,
+		Status:      &d.Status,
+		ContainerID: &d.ContainerID,
+		EnvVars:     d.EnvVars,
+	}
 }

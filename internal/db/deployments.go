@@ -43,7 +43,7 @@ func (p *DBProvider) ListDeployments(user_id string, limit int, offset int) ([]*
 // GetDeploymentByID gets a deployment by id
 func (p *DBProvider) GetDeploymentByID(id string, user_id string) (*models.Deployment, error) {
 	var depl models.Deployment
-	err := p.DB.Where("id = ? AND user_id", id, user_id).First(&depl).Error
+	err := p.DB.Where("id = ? AND created_by = ?", id, user_id).First(&depl).Error
 	return &depl, err
 }
 
@@ -59,5 +59,6 @@ func (p *DBProvider) DeleteDeployment(depl *models.Deployment) error {
 	t := time.Now()
 	depl.DeletedAt = &t
 	depl.UpdatedAt = t
+	depl.Status = "removed"
 	return p.DB.Save(&depl).Error
 }

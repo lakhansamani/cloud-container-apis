@@ -9,4 +9,6 @@ const (
 	OTPVerifiedMessage = "OTP verified"
 	// LogoutMessage is the message for logout
 	LogoutMessage = "Logged out successfully"
+	// DeploymentDeletedMessage is the message for deployment deleted
+	DeploymentDeletedMessage = "Deployment deleted successfully"
 )

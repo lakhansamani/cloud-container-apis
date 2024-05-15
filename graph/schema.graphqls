@@ -64,8 +64,8 @@ input GetDeploymentRequest {
 }
 
 input ListDeploymentsRequest {
-  limit: Int!
-  offset: Int!
+  limit: Int
+  offset: Int
 }
 
 type Query {
@@ -78,7 +78,7 @@ type Mutation {
   signup(params: SignUpRequest!): Response!
   login(params: LoginRequest!): Response!
   verify_otp(params: VerifyOtpRequest!): AuthResponse!
-  create_deployment(params: CreateDeploymentRequest): Response!
+  create_deployment(params: CreateDeploymentRequest): Deployment!
   delete_deployment(params: DeleteDeploymentRequest): Response!
   logout: Response!
 }

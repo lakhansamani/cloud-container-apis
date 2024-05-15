@@ -13,6 +13,7 @@ import (
 	"github.com/lakhansamani/cloud-container/graph/model"
 	constants "github.com/lakhansamani/cloud-container/internal/contants"
 	"github.com/lakhansamani/cloud-container/internal/messages"
+	"github.com/lakhansamani/cloud-container/internal/session"
 	"github.com/lakhansamani/cloud-container/internal/utils"
 )
 
@@ -78,7 +79,7 @@ func (s *service) VerifyOTP(ctx context.Context, params model.VerifyOtpRequest) 
 	}
 	// Set session in memory store
 	nonce := uuid.NewString()
-	session, err := utils.GenerateSession(user.ID.String(), nonce)
+	session, err := session.GenerateSession(user.ID.String(), nonce)
 	if err != nil {
 		log.Debug().Err(err).Msg("error generating session")
 		return nil, errors.New(messages.ErrorGeneratingSession)

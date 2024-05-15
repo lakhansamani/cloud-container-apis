@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/lakhansamani/cloud-container/graph/model"
 )
@@ -27,13 +26,13 @@ func (r *mutationResolver) VerifyOtp(ctx context.Context, params model.VerifyOtp
 }
 
 // CreateDeployment is the resolver for the create_deployment field.
-func (r *mutationResolver) CreateDeployment(ctx context.Context, params *model.CreateDeploymentRequest) (*model.Response, error) {
-	panic(fmt.Errorf("not implemented: CreateDeployment - create_deployment"))
+func (r *mutationResolver) CreateDeployment(ctx context.Context, params *model.CreateDeploymentRequest) (*model.Deployment, error) {
+	return r.Service.CreateDeployment(ctx, params)
 }
 
 // DeleteDeployment is the resolver for the delete_deployment field.
 func (r *mutationResolver) DeleteDeployment(ctx context.Context, params *model.DeleteDeploymentRequest) (*model.Response, error) {
-	panic(fmt.Errorf("not implemented: DeleteDeployment - delete_deployment"))
+	return r.Service.DeleteDeployment(ctx, params)
 }
 
 // Logout is the resolver for the logout field.
@@ -48,12 +47,12 @@ func (r *queryResolver) Session(ctx context.Context) (*model.AuthResponse, error
 
 // Deployments is the resolver for the deployments field.
 func (r *queryResolver) Deployments(ctx context.Context, params *model.ListDeploymentsRequest) ([]*model.Deployment, error) {
-	panic(fmt.Errorf("not implemented: Deployments - deployments"))
+	return r.Service.Deployments(ctx, params)
 }
 
 // Deployment is the resolver for the deployment field.
 func (r *queryResolver) Deployment(ctx context.Context, params *model.GetDeploymentRequest) (*model.Deployment, error) {
-	panic(fmt.Errorf("not implemented: Deployment - deployment"))
+	return r.Service.Deployment(ctx, params)
 }
 
 // Mutation returns MutationResolver implementation.

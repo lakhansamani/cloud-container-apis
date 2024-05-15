@@ -25,4 +25,8 @@ const (
 	InternalServerError = "internal server error"
 	// InvalidSessionError is the error message for invalid session
 	InvalidSessionError = "invalid session"
+	// InvalidDeploymentRequestError is the error message for invalid deployment request
+	InvalidDeploymentRequestError = "invalid deployment request"
+	// DeploymentNotFoundError is the error message for deployment not found
+	DeploymentNotFoundError = "deployment not found"
 )

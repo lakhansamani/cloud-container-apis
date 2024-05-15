@@ -98,7 +98,7 @@ type MutationResolver interface {
 	Signup(ctx context.Context, params model.SignUpRequest) (*model.Response, error)
 	Login(ctx context.Context, params model.LoginRequest) (*model.Response, error)
 	VerifyOtp(ctx context.Context, params model.VerifyOtpRequest) (*model.AuthResponse, error)
-	CreateDeployment(ctx context.Context, params *model.CreateDeploymentRequest) (*model.Response, error)
+	CreateDeployment(ctx context.Context, params *model.CreateDeploymentRequest) (*model.Deployment, error)
 	DeleteDeployment(ctx context.Context, params *model.DeleteDeploymentRequest) (*model.Response, error)
 	Logout(ctx context.Context) (*model.Response, error)
 }
@@ -1283,9 +1283,9 @@ func (ec *executionContext) _Mutation_create_deployment(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Response)
+	res := resTmp.(*model.Deployment)
 	fc.Result = res
-	return ec.marshalNResponse2ᚖgithubᚗcomᚋlakhansamaniᚋcloudᚑcontainerᚋgraphᚋmodelᚐResponse(ctx, field.Selections, res)
+	return ec.marshalNDeployment2ᚖgithubᚗcomᚋlakhansamaniᚋcloudᚑcontainerᚋgraphᚋmodelᚐDeployment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_create_deployment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1296,10 +1296,20 @@ func (ec *executionContext) fieldContext_Mutation_create_deployment(ctx context.
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "message":
-				return ec.fieldContext_Response_message(ctx, field)
+			case "id":
+				return ec.fieldContext_Deployment_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Deployment_name(ctx, field)
+			case "image":
+				return ec.fieldContext_Deployment_image(ctx, field)
+			case "status":
+				return ec.fieldContext_Deployment_status(ctx, field)
+			case "container_id":
+				return ec.fieldContext_Deployment_container_id(ctx, field)
+			case "env_vars":
+				return ec.fieldContext_Deployment_env_vars(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Response", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Deployment", field.Name)
 		},
 	}
 	defer func() {
@@ -3888,14 +3898,14 @@ func (ec *executionContext) unmarshalInputListDeploymentsRequest(ctx context.Con
 		switch k {
 		case "limit":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Limit = data
 		case "offset":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4875,21 +4885,6 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalInt(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) unmarshalNLoginRequest2githubᚗcomᚋlakhansamaniᚋcloudᚑcontainerᚋgraphᚋmodelᚐLoginRequest(ctx context.Context, v interface{}) (model.LoginRequest, error) {
 	res, err := ec.unmarshalInputLoginRequest(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5245,6 +5240,22 @@ func (ec *executionContext) unmarshalOGetDeploymentRequest2ᚖgithubᚗcomᚋlak
 	}
 	res, err := ec.unmarshalInputGetDeploymentRequest(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOListDeploymentsRequest2ᚖgithubᚗcomᚋlakhansamaniᚋcloudᚑcontainerᚋgraphᚋmodelᚐListDeploymentsRequest(ctx context.Context, v interface{}) (*model.ListDeploymentsRequest, error) {

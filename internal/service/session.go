@@ -9,6 +9,7 @@ import (
 	"github.com/lakhansamani/cloud-container/graph/model"
 	constants "github.com/lakhansamani/cloud-container/internal/contants"
 	"github.com/lakhansamani/cloud-container/internal/messages"
+	"github.com/lakhansamani/cloud-container/internal/session"
 	"github.com/lakhansamani/cloud-container/internal/utils"
 	"github.com/rs/zerolog/log"
 )
@@ -35,7 +36,7 @@ func (s *service) Session(ctx context.Context) (*model.AuthResponse, error) {
 		return nil, errors.New(messages.InvalidMfaSessionError)
 	}
 	// Decrypt session token
-	userID, nonce, err := utils.DecryptSession(sessionValue)
+	userID, nonce, err := session.DecryptSession(sessionValue)
 	if err != nil {
 		log.Debug().Err(err).Msg("error decrypting session token")
 		return nil, errors.New(messages.InvalidSessionError)
@@ -53,7 +54,7 @@ func (s *service) Session(ctx context.Context) (*model.AuthResponse, error) {
 	}
 	// Set session in memory store
 	nonce = uuid.NewString()
-	session, err := utils.GenerateSession(userID, nonce)
+	session, err := session.GenerateSession(userID, nonce)
 	if err != nil {
 		log.Debug().Err(err).Msg("error generating session")
 		return nil, errors.New(messages.ErrorGeneratingSession)

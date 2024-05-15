@@ -41,6 +41,18 @@ type Service interface {
 	// Logout is the service for the logout mutation
 	// permission required: authenticated user
 	Logout(ctx context.Context) (*model.Response, error)
+	// Deployments is the service for the deployments query
+	// permission required: authenticated user
+	CreateDeployment(ctx context.Context, params *model.CreateDeploymentRequest) (*model.Deployment, error)
+	// Deployment is the service for the deployment query
+	// permission required: authenticated user
+	DeleteDeployment(ctx context.Context, params *model.DeleteDeploymentRequest) (*model.Response, error)
+	// Deployments is the service for the deployments query
+	// permission required: authenticated user
+	Deployments(ctx context.Context, params *model.ListDeploymentsRequest) ([]*model.Deployment, error)
+	// Deployment is the service for the deployment query
+	// permission required: authenticated user
+	Deployment(ctx context.Context, params *model.GetDeploymentRequest) (*model.Deployment, error)
 }
 
 type service struct {

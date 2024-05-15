@@ -3,6 +3,7 @@ package middleware
 import (
 	"encoding/json"
 	"io"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -11,6 +12,7 @@ import (
 
 	constants "github.com/lakhansamani/cloud-container/internal/contants"
 	messages "github.com/lakhansamani/cloud-container/internal/messages"
+	"github.com/lakhansamani/cloud-container/internal/session"
 )
 
 // Define a struct to parse the GraphQL request
@@ -20,17 +22,20 @@ type GraphQLRequest struct {
 	OperationName string      `json:"operationName"`
 }
 
-// List of queries/mutations that require authentication along with associated roles
-var protectedOperations = map[string][]string{
-	"create_deployment": {constants.RoleTypeDeploymentAdmin},
-	"delete_deployment": {constants.RoleTypeDeploymentAdmin},
-	"session":           {constants.RoleTypeDeploymentAdmin},
+// List of queries/mutations that require authentication
+var protectedOperations = []string{
+	"create_deployment",
+	"delete_deployment",
+	"logout",
+	"session",
+	"deployments",
+	"deployment",
 }
 
 // List of public queries/mutations
 var publicOperations = []string{
+	"signup",
 	"login",
-	"logout",
 	"verify_otp",
 }
 
@@ -76,56 +81,52 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		// If the operation is protected, perform authentication
-		// if allowedRoles, ok := protectedOperations[operationName]; ok {
-		// 	// Get access token from authorization header
-		// 	accessToken, err := token.GetAccessToken(c)
-		// 	if err != nil || accessToken == "" {
-		// 		log.Debug().Err(err).Msg("error getting access token from authorization header")
-		// 		c.AbortWithStatusJSON(400, gin.H{"message": messages.UnauthorizedError})
-		// 		return
-		// 	}
-		// 	// Validate access token
-		// 	accessTokenData, err := token.ValidateAccessToken(c, accessToken)
-		// 	if err != nil || accessTokenData == nil {
-		// 		log.Debug().Err(err).Msg("error validating access token")
-		// 		c.AbortWithStatusJSON(400, gin.H{"message": messages.UnauthorizedError})
-		// 		return
-		// 	}
-		// 	// Check if user has the required roles
-		// 	if !hasRequiredRole(accessTokenData.Roles, allowedRoles) {
-		// 		log.Debug().Str("roles", accessTokenData.Roles).Err(err).Msg("user does not have the required role")
-		// 		c.AbortWithStatusJSON(400, gin.H{"message": messages.UnauthorizedError})
-		// 		return
-		// 	}
-		// 	c.Set("user_id", accessTokenData.Subject)
-		// 	c.Set("user_roles", accessTokenData.Roles)
-		// 	c.Set("company_id", accessTokenData.CompanyID)
-		// 	if val, ok := accessTokenData.HasuraClaims["x-hasura-company-role-id"]; ok {
-		// 		c.Set("company_role_id", val.(string))
-		// 	}
-		// 	c.Next()
-		// 	return
-		// }
-		c.Next()
-		// Operation not found, abort
-		// c.AbortWithStatusJSON(400, gin.H{"message": messages.InvalidGraphqlOperationMessage})
+		// If the operation is protected, check if operation exists in protectedOperations
+		// Get the cookie and decrypt the session token
+		// Add user_id to the context
+		if isProtectedOperation(operationName) {
+			sessionCookie, err := c.Request.Cookie(constants.SessionCookieName)
+			if err != nil {
+				log.Debug().Err(err).Msg("error getting session cookie")
+				c.AbortWithStatusJSON(400, gin.H{"message": messages.UnauthorizedError})
+				return
+			}
+			sessionValue, err := url.PathUnescape(sessionCookie.Value)
+			if err != nil {
+				log.Debug().Err(err).Msg("error unescaping session value")
+				c.AbortWithStatusJSON(400, gin.H{"message": messages.UnauthorizedError})
+				return
+			}
+			// Decrypt session token
+			userID, _, err := session.DecryptSession(sessionValue)
+			if err != nil {
+				log.Debug().Err(err).Msg("error decrypting session token")
+				c.AbortWithStatusJSON(400, gin.H{"message": messages.UnauthorizedError})
+				return
+			}
+			c.Set("user_id", userID)
+			c.Next()
+			return
+		} else {
+			c.AbortWithStatusJSON(400, gin.H{"message": messages.InvalidGraphqlOperationMessage})
+			return
+		}
 	}
 }
 
-// hasRequiredRole checks if one of the allowed role is present in the user roles present as part of jwt tokens
-func hasRequiredRole(userRoles string, allowedRoles []string) bool {
-	for _, role := range allowedRoles {
-		if strings.Contains(userRoles, role) {
+// isPublicOperation checks if the operation is a public mutation/query
+func isPublicOperation(operationName string) bool {
+	for _, mutation := range publicOperations {
+		if operationName == mutation {
 			return true
 		}
 	}
 	return false
 }
 
-// isPublicOperation checks if the operation is a public mutation/query
-func isPublicOperation(operationName string) bool {
-	for _, mutation := range publicOperations {
+// isProtectedOperation checks if the operation is a public mutation/query
+func isProtectedOperation(operationName string) bool {
+	for _, mutation := range protectedOperations {
 		if operationName == mutation {
 			return true
 		}

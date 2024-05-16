@@ -3,7 +3,10 @@ package graph
 import (
 	"strconv"
 
+	container "github.com/lakhansamani/container-orchestrator-apis/container"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	gomail "gopkg.in/mail.v2"
 
 	"github.com/lakhansamani/cloud-container/internal/db"
@@ -34,10 +37,16 @@ func NewResolver() *Resolver {
 	if err != nil {
 		log.Fatal().Err(err).Msg("error initializing memory store")
 	}
+	conn, err := grpc.Dial(global.ContainerOrchestratorServiceURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatal().Err(err).Msg("error initializing container orchestrator service")
+	}
+	containerClient := container.NewContainerServiceClient(conn)
 	svc := service.NewService(&service.Dependencies{
-		DatabaseClient:      db,
-		Mailer:              mailer,
-		MemoryStoreProvider: memoryStore,
+		DatabaseClient:         db,
+		Mailer:                 mailer,
+		MemoryStoreProvider:    memoryStore,
+		ContainerServiceClient: containerClient,
 	})
 	return &Resolver{
 		Service: svc,

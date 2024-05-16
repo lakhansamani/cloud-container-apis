@@ -72,6 +72,10 @@ func SetEnvVars() {
 	if global.DatabaseURL == "" {
 		log.Fatal().Msg("DATABASE_URL not set")
 	}
+	global.ContainerOrchestratorServiceURL = os.Getenv("CONTAINER_ORCHESTRATOR_SERVICE_URL")
+	if global.ContainerOrchestratorServiceURL == "" {
+		log.Fatal().Msg("CONTAINER_ORCHESTRATOR_SERVICE_URL not set")
+	}
 	global.RedisURL = os.Getenv(redisURL)
 	if global.RedisURL == "" {
 		log.Fatal().Msg("REDIS_URL not set")

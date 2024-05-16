@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 
+	"github.com/lakhansamani/container-orchestrator-apis/container"
+	"github.com/rs/zerolog/log"
+
 	"github.com/lakhansamani/cloud-container/graph/model"
 	"github.com/lakhansamani/cloud-container/internal/messages"
 	"github.com/lakhansamani/cloud-container/internal/utils"
-	"github.com/rs/zerolog/log"
 )
 
 // Deployment is the service for the deployment query
@@ -31,6 +33,16 @@ func (s *service) DeleteDeployment(ctx context.Context, params *model.DeleteDepl
 	if err != nil {
 		log.Debug().Err(err).Msg("error deleting deployment")
 		return nil, errors.New(messages.InternalServerError)
+	}
+	// Delete container
+	if depl.ContainerID != "" {
+		_, err = s.ContainerServiceClient.DeleteContainer(ctx, &container.DeleteContainerRequest{
+			ContainerId: depl.ContainerID,
+		})
+		if err != nil {
+			log.Debug().Err(err).Msg("error deleting container")
+			return nil, errors.New(messages.InternalServerError)
+		}
 	}
 	return &model.Response{
 		Message: messages.DeploymentDeletedMessage,

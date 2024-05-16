@@ -48,9 +48,13 @@ func (p *DBProvider) GetDeploymentByID(id string, user_id string) (*models.Deplo
 }
 
 // UpdateDeployment updates a deployment
-func (p *DBProvider) UpdateDeployment(depl *models.Deployment) error {
+func (p *DBProvider) UpdateDeployment(depl *models.Deployment) (*models.Deployment, error) {
 	depl.UpdatedAt = time.Now()
-	return p.DB.Save(&depl).Error
+	err := p.DB.Save(&depl).Error
+	if err != nil {
+		return nil, err
+	}
+	return depl, nil
 }
 
 // DeleteDeployment deletes a deployment

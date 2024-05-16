@@ -5,6 +5,8 @@ var (
 	Port string
 	// DatabaseURL is the URL of the database
 	DatabaseURL string
+	// ContainerOrchestratorServiceURL is the URL of the container orchestrator service
+	ContainerOrchestratorServiceURL string
 	// RedisURL is the URL of the redis server
 	RedisURL string
 	// SMTPHost is the host of the SMTP server

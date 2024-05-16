@@ -3,13 +3,17 @@ package service
 import (
 	"context"
 	"errors"
+	"strings"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/lakhansamani/container-orchestrator-apis/container"
+	"github.com/rs/zerolog/log"
+
 	"github.com/lakhansamani/cloud-container/graph/model"
 	"github.com/lakhansamani/cloud-container/internal/db/models"
 	"github.com/lakhansamani/cloud-container/internal/messages"
 	"github.com/lakhansamani/cloud-container/internal/utils"
-	"github.com/rs/zerolog/log"
 )
 
 // Deployments is the service for the deployments query
@@ -32,6 +36,7 @@ func (s *service) CreateDeployment(ctx context.Context, params *model.CreateDepl
 		log.Debug().Err(err).Msg("error parsing user id")
 		return nil, errors.New(messages.InternalServerError)
 	}
+	// Create deployment in database
 	depl := &models.Deployment{
 		Name:      params.Name,
 		Image:     params.Image,
@@ -44,5 +49,47 @@ func (s *service) CreateDeployment(ctx context.Context, params *model.CreateDepl
 		log.Debug().Err(err).Msg("error creating deployment")
 		return nil, errors.New(messages.InternalServerError)
 	}
+	// Create container
+	containerEnvVars := []*container.EnvVar{}
+	for k, v := range depl.EnvVars {
+		containerEnvVars = append(containerEnvVars, &container.EnvVar{
+			Key:   k,
+			Value: v.(string),
+		})
+	}
+	newContainer, err := s.ContainerServiceClient.CreateContainer(ctx, &container.CreateContainerRequest{
+		Image:   depl.Image,
+		Name:    depl.ID.String(),
+		EnvVars: containerEnvVars,
+	})
+	if err != nil {
+		log.Debug().Err(err).Msg("error creating container")
+		return nil, errors.New(messages.InternalServerError)
+	}
+	// Update deployment status
+	depl.Status = newContainer.GetStatus()
+	depl.ContainerID = newContainer.GetContainerId()
+	go func() {
+		// Wait for container to be ready or failed
+		for {
+			<-time.After(5 * time.Second)
+			containerInfo, err := s.ContainerServiceClient.GetContainer(context.Background(), &container.GetContainerRequest{
+				ContainerId: newContainer.GetContainerId(),
+			})
+			if err != nil {
+				log.Debug().Err(err).Msg("error getting container")
+				// continue to wait
+				continue
+			}
+			if containerInfo.GetStatus() == "running" || strings.Contains(containerInfo.GetStatus(), "failed") || containerInfo.GetStatus() == "exited" {
+				depl.Status = containerInfo.GetStatus()
+				_, err := s.DatabaseClient.UpdateDeployment(depl)
+				if err != nil {
+					log.Debug().Err(err).Msg("error updating deployment")
+				}
+				break
+			}
+		}
+	}()
 	return depl.ToAPI(), nil
 }

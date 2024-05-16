@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	container "github.com/lakhansamani/container-orchestrator-apis/container"
 	gomail "gopkg.in/mail.v2"
 
 	"github.com/lakhansamani/cloud-container/graph/model"
@@ -19,6 +20,8 @@ type Dependencies struct {
 	Mailer *gomail.Dialer
 	// MemoryStoreProvider is the memory store provider
 	MemoryStoreProvider mp.MemoryStoreProvider
+	// ContainerServiceClient is the container service client
+	ContainerServiceClient container.ContainerServiceClient
 }
 
 // Service is the interface that all services must implement

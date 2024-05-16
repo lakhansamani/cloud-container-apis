@@ -57,8 +57,16 @@ func (s *service) Signup(ctx context.Context, params model.SignUpRequest) (*mode
 	host := utils.GetHost(gc)
 	hostname, _ := utils.GetHostParts(host)
 	gc.SetCookie(constants.MfaSessionCookieName, fmt.Sprintf("%s:%s", user.ID, mfaSession), 60*2, "/", hostname, true, true)
-	// TODO send OTP to user
+	// OTP log for debugging only
 	log.Debug().Msgf("OTP: %s", otp)
+	go func() {
+		err := utils.SendMail(s.Mailer, "OTP for signup", constants.OtpEmailTemplate, []string{email}, map[string]interface{}{
+			"otp": otp,
+		})
+		if err != nil {
+			log.Debug().Err(err).Msg("Failed to send mail")
+		}
+	}()
 	return &model.Response{
 		Message: messages.OTPSentMessage,
 	}, nil

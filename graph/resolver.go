@@ -37,7 +37,7 @@ func NewResolver() *Resolver {
 	if err != nil {
 		log.Fatal().Err(err).Msg("error initializing memory store")
 	}
-	conn, err := grpc.Dial(global.ContainerOrchestratorServiceURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(global.ContainerOrchestratorServiceURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal().Err(err).Msg("error initializing container orchestrator service")
 	}

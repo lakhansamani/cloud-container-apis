@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -63,6 +64,10 @@ func (s *service) CreateDeployment(ctx context.Context, params *model.CreateDepl
 		EnvVars: containerEnvVars,
 	})
 	if err != nil {
+		// Update deployment status
+		depl.Status = fmt.Sprintf("failed: %s", err.Error())
+		_, err := s.DatabaseClient.UpdateDeployment(depl)
+
 		log.Debug().Err(err).Msg("error creating container")
 		return nil, errors.New(messages.InternalServerError)
 	}

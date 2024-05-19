@@ -24,7 +24,7 @@ func GetHostParts(uri string) (string, string) {
 
 // GetHost function to get host
 func GetHost(c *gin.Context) string {
-	currentURL := c.Request.Header.Get("X-URL")
+	currentURL := c.Request.Header.Get("x-api-url")
 	if currentURL != "" {
 		return strings.TrimSuffix(currentURL, "/")
 	}

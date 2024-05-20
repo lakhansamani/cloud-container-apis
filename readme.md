@@ -2,7 +2,7 @@
 
 Graphql APIs to spin up a container & delete a container
 
-# Getting started
+## Getting started
 
 ### Required services
 

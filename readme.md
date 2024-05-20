@@ -25,10 +25,10 @@ REDIS_URL=redis://localhost:6379
 DATABASE_URL=postgres://postgres:password@0.0.0.0:5432/postgres
 ```
 
-### Running
+### Starting server locally
 
 - `make run`
 
-### Building
+### Creating Builds
 
 - `make`

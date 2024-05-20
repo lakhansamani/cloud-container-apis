@@ -39,7 +39,6 @@ const (
 
 var (
 	// RootCmd is the root (and only) command of this service
-	// TODO change this to your docker image name
 	RootCmd = &cobra.Command{
 		Use:   "api",
 		Short: "The api Service",

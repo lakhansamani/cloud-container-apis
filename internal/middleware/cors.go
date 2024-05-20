@@ -7,7 +7,6 @@ import (
 // CORSMiddleware is a middleware to add cors headers
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// TODO: add origin check if needed
 		origin := c.Request.Header.Get("Origin")
 		c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")

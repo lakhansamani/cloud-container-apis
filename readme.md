@@ -1,6 +1,6 @@
 # cloud-container-apis
 
-Graphql APIs to spawn up a container & delete a container
+Graphql APIs to spin up a container & delete a container
 
 # Getting started
 
